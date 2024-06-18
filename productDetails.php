@@ -124,17 +124,6 @@
                                     <button type="button" class="border border-gray-300 px-2 py-1 rounded-r" id="children-plus">+</button>
                                 </div>
                             </div>
-                            <div class="flex justify-between items-center mb-2">
-                                <div>
-                                    <span>Infants</span>
-                                    <div class="text-sm text-gray-600">younger than 2</div>
-                                </div>
-                                <div class="flex items-center">
-                                    <button type="button" class="border border-gray-300 px-2 py-1 rounded-l" id="infants-minus">-</button>
-                                    <span class="mx-2" id="infants-count">0</span>
-                                    <button type="button" class="border border-gray-300 px-2 py-1 rounded-r" id="infants-plus">+</button>
-                                </div>
-                            </div>
                             <div class="flex justify-end">
                                 <button class="bg-blue-500 text-white px-4 py-2 rounded mt-2" id="passenger-ready" type="button">Ready</button>
                             </div>
@@ -274,18 +263,18 @@
                 event.preventDefault();
                 const adults = $('#adultsInput').val();
                 const children = $('#childrenInput').val();
-                const infants = $('#infantsInput').val();
+                // const infants = $('#infantsInput').val();
                 const productCode = '<?php echo $productCode; ?>';
                 const productname = $('#product_name').text();
                 const productdescription = $('#product_description').text();
                 const Amount = $('#amount').val();
-                const TotalPassengers = Number(adults) + Number(children) + Number(infants);
+                const TotalPassengers = Number(adults) + Number(children);
                 const imgUrl = $('#imgurl').val();
                 const paymentType = $('#paymentType').val();
                 let selectedExtra = {
                     Adults: adults,
                     Children: children,
-                    Infants: infants,
+                    // Infants: infants,
                     Amount: Amount,
                     ProductCode: productCode,
                     ProductName: productname,

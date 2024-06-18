@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,23 +22,23 @@
             top: 0;
             width: 100%;
         }
-
+ 
         .logo {
             width: 140px;
             cursor: pointer;
         }
-
+ 
         .nav-links li {
             list-style: none;
             display: inline-block;
             margin: 10px 30px;
         }
-
+ 
         .nav-links li a {
             text-decoration: none;
             color: #fff;
         }
-
+ 
         .register-btn {
             background: #fff;
             color: black;
@@ -54,29 +57,47 @@
         <li><a href="#">Travel Outside</a></li>
         <li><a href="#">Online Packages</a></li>
     </ul>
-    <div id="right-side">
+    <div style="position: relative;" id="right-side">
         <a href="#" class="register-btn">Register Now</a>
-            <button class="btn " type="button" data-bs-toggle="offcanvas" data-bs-target="#demo"><i class="fa-solid fa-cart-shopping" style="color: #ffff;"></i></button>
+        <button class="btn " type="button" data-bs-toggle="offcanvas" data-bs-target="#demo"><i class="fa-solid fa-cart-shopping" style="color: #ffff;"></i></button>
+        <p id="cart_ounter" style="position: absolute;top: 0;right: 0;background-color: red;color: white;width: 21px;margin: 0;text-align: center;border-radius: 50px;font-size: 12px;">0</p>
     </div>
 </nav>
 <div class="header">
     <div class="container">
-
-    <div class="offcanvas offcanvas-end" id="demo">
+ 
+        <div class="offcanvas offcanvas-end" id="demo">
             <div class="offcanvas-header">
-            <div class="maincont">
-    <div class="content">
-        <div class="image-part">
-            <img src="https://source.unsplash.com/random/800x600" alt="Random Image">
-        </div>
-        <div class="info-part">
-            
-            
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="maincont">
+                    <div class="content" >
+                          <h3 style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">Your Cart</h3>
+                        <!-- Example product card -->
+                        <?php $TotalAmount = 0; foreach ($_SESSION['selectedExtras'] as $product) : ?>
+                            <?php ($TotalAmount = $TotalAmount + $product['Amount']);?>
+                            <div class="d-flex gap-3" style="align-items: center;background-color:#64A6BD ;padding: 8px;border-radius: 10px;margin-bottom: 25px;">
+                                <div>
+                                    <img style="width:100px;height:100px;" src="<?php echo $product['imgUrl']; ?>" alt="">
+                                </div>
+                                <div>
+                                    <p style="font-size: small;font-weight:bold;"><?php echo $product['ProductName']; ?></p>
+                                    <p style="font-size: small;"><?php echo $product['productdescription']; ?></p>
+                                    <p style="font-size: small;">Amount :$AUD  <?php echo $product['Amount']; ?></p>
+                                </div>
+                            </div>
+                        <?php endforeach;?>
+                        <div class="d-flex justify-content-between align-items-baseline">
+                            <p class="m-0 p-2 btn text-light" style="background-color:#1be414;">$ AUD <?php echo $TotalAmount;?></p>
+                            <a class="btn btn-primary" href="payment.php">Continue</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-   </div>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-    </div>
-   </div>
+</div>
+ 
 </body>
 </html>

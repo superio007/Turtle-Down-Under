@@ -80,12 +80,18 @@
                 `;
             });
 
-            cartContent += `
+            if (cartItems.length != 0) {
+                cartContent += `
                 <div class="d-flex justify-content-between align-items-baseline">
                     <p class="m-0 p-2 btn text-light" style="background-color:#1be414;">$ AUD ${totalAmount}</p>
                     <a class="btn btn-primary" href="payment.php">Continue</a>
                 </div>
-            `;
+                `;
+            } else {
+                cartContent += `
+                <p class="text-center">Your cart is empty!</p>
+                `;
+            }
 
             cartItemsContainer.html(cartContent);
         }

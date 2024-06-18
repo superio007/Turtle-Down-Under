@@ -54,43 +54,6 @@ $productDetails = getRezdyProducts($apiKey);
             align-items: center;
         }
 
-        nav {
-            min-height: 2vh;
-            display: flex;
-            background-color: #177E89;
-            align-items: center;
-            justify-content: space-between;
-            padding: 5px 7%;
-            position: absolute;
-            top: 0;
-            width: 100%;
-        }
-
-        .logo {
-            width: 140px;
-            cursor: pointer;
-        }
-
-        .nav-links li {
-            list-style: none;
-            display: inline-block;
-            margin: 10px 30px;
-        }
-
-        .nav-links li a {
-            text-decoration: none;
-            color: #fff;
-        }
-
-        .register-btn {
-            background: #fff;
-            color: black;
-            padding: 8px 20px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
         .container {
             padding: 0 10%;
         }
@@ -114,13 +77,6 @@ $productDetails = getRezdyProducts($apiKey);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* .search-bar form {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;    
-            width: 100%;
-        } */
-
         .search-bar form input, .search-bar form select {
             border: 0;
             outline: none;
@@ -133,10 +89,9 @@ $productDetails = getRezdyProducts($apiKey);
         }
 
         .search-bar form button {
+            padding: 12px;
             background: #177E89;
-            /* width: 755px;
-            height: 55px; */
-            border-radius: 0; /* Make the button squared */
+            border-radius: 42px;
             border: 0;
             outline: none;
             cursor: pointer;

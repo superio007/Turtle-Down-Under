@@ -1,5 +1,7 @@
 <?php
 session_start();
+$sessionData = $_SESSION['selectedExtras'];
+// unset($_SESSION['selectedExtras']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,13 +15,14 @@ session_start();
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
-            display: flex;
-            /* justify-content: center;
-            align-items: center;
-            height: 100vh; */
             margin: 0;
         }
-
+        nav #right-side {
+            display: flex;
+        }
+        nav .register-btn {
+            width: 220px;
+        }
         .container {
             background-color: white;
             border: 1px solid #ddd;
@@ -29,64 +32,21 @@ session_start();
             width: 34%;
             margin-top: 95px !important;
         }
-
-        nav {
-            min-height: 2vh;
-            display: flex;
-            background-color: #177E89;
-            align-items: center;
-            justify-content: space-between;
-            padding: 5px 7%;
-            position: absolute;
-            top: 0;
-            width: 100%;
-        }
-
-        .logo {
-            width: 140px;
-            cursor: pointer;
-        }
-
-        .nav-links li {
-            list-style: none;
-            display: inline-block;
-            margin: 10px 30px;
-        }
-
-        .nav-links li a {
-            text-decoration: none;
-            color: #fff;
-        }
-
-        .register-btn {
-            background: #fff;
-            color: black;
-            padding: 8px 20px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
         .header {
-            text-align: center;
             margin-bottom: 20px;
         }
-
         .steps {
             display: flex;
             justify-content: space-around;
             margin-bottom: 10px;
         }
-
         .steps span {
             font-weight: bold;
         }
-
         .contact-form h2 {
             text-align: center;
             margin-bottom: 20px;
         }
-
         .secure-checkout {
             display: flex;
             align-items: center;
@@ -94,20 +54,16 @@ session_start();
             color: green;
             font-weight: bold;
         }
-
         .secure-checkout input {
             margin-right: 10px;
         }
-
         .form-group {
             margin-bottom: 20px;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 5px;
         }
-
         .form-group input,
         .form-group select {
             width: 100%;
@@ -115,12 +71,10 @@ session_start();
             border: 1px solid #ddd;
             border-radius: 5px;
         }
-
         .form-group input[type="checkbox"] {
             width: auto;
             margin-right: 10px;
         }
-
         button {
             width: 100%;
             padding: 10px;
@@ -131,21 +85,17 @@ session_start();
             font-size: 1em;
             cursor: pointer;
         }
-
         button:hover {
             background-color: #0056b3;
         }
-
         p {
             font-size: 0.9em;
             color: #666;
             text-align: center;
         }
-
         p a {
             color: #007bff;
         }
-
         p a:hover {
             text-decoration: underline;
         }
@@ -154,9 +104,10 @@ session_start();
 <body>
     <?php
         date_default_timezone_set('UTC');
-        echo "<pre>";
-        var_dump($_SESSION['selectedExtras']);
-        echo "</pre>";
+        // echo "<pre>";
+        // var_dump($_SESSION['selectedExtras']);
+        // echo "</pre>";
+
         function getRezdyProductDetails($apiKey, $productCode) {
             $url = "https://api.rezdy-staging.com/v1/products/$productCode?apiKey=" . urlencode($apiKey);
             $ch = curl_init();
@@ -169,15 +120,13 @@ session_start();
                 die("Error: Curl request failed: " . curl_error($ch));
             }
             curl_close($ch);
-    
             $data = json_decode($response, true);
-            
             if ($data === null) {
                 die("Error: Failed to decode JSON response");
             }
             return $data;
         }
-    
+
         function getRezdyAvailability($apiKey, $productCode, $startTimeLocal, $endTimeLocal) {
             $url = "https://api.rezdy-staging.com/v1/availability?apiKey=" . urlencode($apiKey) . "&productCode=" . urlencode($productCode) . "&startTimeLocal=" . urlencode($startTimeLocal) . "&endTimeLocal=" . urlencode($endTimeLocal);
             $ch = curl_init();
@@ -190,21 +139,13 @@ session_start();
                 die("Error: Curl request failed: " . curl_error($ch));
             }
             curl_close($ch);
-    
             $data = json_decode($response, true);
-            
             if ($data === null) {
                 die("Error: Failed to decode JSON response");
             }
             return $data;
         }
-    
-        function getCurrentLocalDateTime() {
-            $date = new DateTime();
-            $formattedDate = $date->format('Y-m-d H:i:s');
-            return $formattedDate;
-        }
-        
+
         function createRezdyBooking($apiKey, $bookingData) {
             $url = "https://api.rezdy-staging.com/v1/bookings?apiKey=" . urlencode($apiKey);
             $ch = curl_init();
@@ -220,32 +161,23 @@ session_start();
                 die("Error: Curl request failed: " . curl_error($ch));
             }
             curl_close($ch);
-    
             $data = json_decode($response, true);
             if ($data === null) {
                 die("Error: Failed to decode JSON response");
             }
             return $data;
         }
-    
+
         $apiKey = "81c3566e60ef42e6afa1c2719e7843fd";
         $productCode = $_GET['productCode'] ?? '';
         if (empty($productCode)) {
             die("Error: Product code must be provided.");
         }
-    
+
         $productDetails = getRezdyProductDetails($apiKey, $productCode);
         $startTimeLocal = (new DateTime())->format('Y-m-d H:i:s');
         $endTimeLocal = (new DateTime())->modify('+1 month')->format('Y-m-d H:i:s');
         $availability = getRezdyAvailability($apiKey, $productCode, $startTimeLocal, $endTimeLocal);
-        $sessionData = $_SESSION['selectedExtras'];
-        for($i = 0; $i < count($sessionData) ; $i++){
-            $TotalAmount = $TotalAmount + $sessionData['Amount'];
-        }
-        // foreach($selectedData as $select){
-        //     $TotalAmount = $TotalAmount + $select['Amount'];
-        // }
-        echo $TotalAmount;
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $firstName = $_POST['firstName'];
             $lastName = $_POST['lastName'];
@@ -256,72 +188,70 @@ session_start();
             $children = $_POST['children'];
             $infants = $_POST['infants'];
             $selectedExtras = $_POST['extra'] ?? [];
-    
+
             if (isset($availability['sessions']) && count($availability['sessions']) > 0) {
                 $startTimeLocal = $availability['sessions'][0]['startTimeLocal'];
-    
-                $bookingData = [
-                    "customer" => [
-                        "firstName" => $firstName,
-                        "lastName" => $lastName,
-                        "phone" => $phone
-                    ],
-                    "items" => [
-                        [
-                            "productCode" => $productCode,
-                            "startTimeLocal" => $startTimeLocal,
-                            "quantities" => [
+
+                $bookingDataArray = [];
+                foreach ($sessionData as $session) {
+                    for ($i = 0; $i < $session['TotalPassengers']; $i++) {
+                        $bookingData = [
+                            "customer" => [
+                                "firstName" => $firstName,
+                                "lastName" => $lastName,
+                                "phone" => $phone
+                            ],
+                            "items" => [
                                 [
-                                    "optionLabel" => "Adult",
-                                    "value" => $adults
+                                    "productCode" => $session['ProductCode'],
+                                    "startTimeLocal" => $startTimeLocal,
+                                    "quantities" => [
+                                        [
+                                            "optionLabel" => "Adult",
+                                            "value" => $adults
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            "payments" => [
+                                [
+                                    "amount" => $session['Amount'],
+                                    "type" => $session['paymentType'],
+                                    "recipient" => "AGENT",
+                                    "label" => "Paid in cash to API specification demo company"
                                 ]
                             ]
-                        ]
-                    ],
-                    "payments" => [
-                        [
-                            "amount" => $amount,
-                            "type" => $paymentType,
-                            "recipient" => "AGENT",
-                            "label" => "Paid in cash to API specification demo company"
-                        ]
-                    ]
-                ];
-    
-                $bookingResponse = createRezdyBooking($apiKey, $bookingData);
-                var_dump($bookingData);
-                var_dump($bookingResponse);
-                if (isset($bookingResponse['requestStatus']['success']) && $bookingResponse['requestStatus']['success'] == true) {
-                    echo "Booking successful!";
-                } else {
-                    echo "Booking failed!";
+                        ];
+                        $bookingDataArray[] = $bookingData;
+                    }
+                }
+
+                foreach ($bookingDataArray as $booking) {
+                    $bookingResponse = createRezdyBooking($apiKey, $booking);
+                    
+                    if (isset($bookingResponse['requestStatus']['success']) && $bookingResponse['requestStatus']['success'] == true) {
+                        echo "Booking successful!";
+                    } else {
+                        echo "Booking failed!";
+                    }
                 }
             } else {
                 echo "No available sessions found for the selected product.";
             }
         }
+        var_dump($bookingDataArray);
+        var_dump($bookingResponse);
     ?>
-    <div>
-        <!-- <nav>
-            <img src="images/logo_tdu.png" class="logo" alt="">
-            <ul class="nav-links">
-                <li><a href="index.php">Popular places</a></li>
-                <li><a href="#">Travel Outside</a></li>
-                <li><a href="#">Online Packages</a></li>
-            </ul>
-            <a href="#" class="register-btn">Register Now</a>
-        </nav> -->
-        <?php require "header.php"?>
-    </div>
+    <?php require "header.php" ?>
     <div class="container">
         <form class="contact-form" action="bookings.php" method="POST">
             <h2>Enter your contact details</h2>
-            <div class="d-flex justify-content-between form-group">
-                <div>
+            <div class="row">
+                <div class="form-group col-6 d-grid">
                     <label for="fname">* First name</label>
                     <input type="text" id="fname" name="firstName" placeholder="Enter first name" required>
                 </div>
-                <div>
+                <div class="form-group col-6 d-grid">
                     <label for="lname">* Last name</label>
                     <input type="text" id="lname" name="lastName" placeholder="Enter last name" required>
                 </div>
@@ -353,3 +283,6 @@ session_start();
     </div>
 </body>
 </html>
+<script>
+    // sessionStorage.removeItem('selectedExtras');
+</script>

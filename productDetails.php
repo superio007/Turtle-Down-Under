@@ -1,69 +1,69 @@
 <?php
-session_start();
-date_default_timezone_set('Asia/Kolkata');
+    session_start();
+    date_default_timezone_set('UTC');
 
-function getRezdyProductDetails($apiKey, $productCode) {
-    $url = "https://api.rezdy-staging.com/v1/products/$productCode?apiKey=" . urlencode($apiKey);
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
-    if ($response === false) {
-        die("Error: Curl request failed: " . curl_error($ch));
+    function getRezdyProductDetails($apiKey, $productCode) {
+        $url = "https://api.rezdy-staging.com/v1/products/$productCode?apiKey=" . urlencode($apiKey);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        if ($response === false) {
+            die("Error: Curl request failed: " . curl_error($ch));
+        }
+        curl_close($ch);
+
+        $data = json_decode($response, true);
+        
+        if ($data === null) {
+            die("Error: Failed to decode JSON response");
+        }
+        return $data;
     }
-    curl_close($ch);
 
-    $data = json_decode($response, true);
-    
-    if ($data === null) {
-        die("Error: Failed to decode JSON response");
+    function getRezdyAvailability($apiKey, $productCode, $startTimeLocal, $endTimeLocal) {
+        $url = "https://api.rezdy-staging.com/v1/availability?apiKey=" . urlencode($apiKey) . "&productCode=" . urlencode($productCode) . "&startTimeLocal=" . urlencode($startTimeLocal) . "&endTimeLocal=" . urlencode($endTimeLocal);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        if ($response === false) {
+            die("Error: Curl request failed: " . curl_error($ch));
+        }
+        curl_close($ch);
+
+        $data = json_decode($response, true);
+        
+        if ($data === null) {
+            die("Error: Failed to decode JSON response");
+        }
+        return $data;
     }
-    return $data;
-}
 
-function getRezdyAvailability($apiKey, $productCode, $startTimeLocal, $endTimeLocal) {
-    $url = "https://api.rezdy-staging.com/v1/availability?apiKey=" . urlencode($apiKey) . "&productCode=" . urlencode($productCode) . "&startTimeLocal=" . urlencode($startTimeLocal) . "&endTimeLocal=" . urlencode($endTimeLocal);
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
-    if ($response === false) {
-        die("Error: Curl request failed: " . curl_error($ch));
+    function getCurrentLocalDateTime() {
+        $date = new DateTime();
+        $formattedDate = $date->format('Y-m-d H:i:s');
+        return $formattedDate;
     }
-    curl_close($ch);
 
-    $data = json_decode($response, true);
-    
-    if ($data === null) {
-        die("Error: Failed to decode JSON response");
+    $apiKey = "81c3566e60ef42e6afa1c2719e7843fd";
+    $productCode = $_GET['productCode'] ?? '';
+    if (empty($productCode)) {
+        die("Error: Product code must be provided.");
     }
-    return $data;
-}
 
-function getCurrentLocalDateTime() {
-    $date = new DateTime();
-    $formattedDate = $date->format('Y-m-d H:i:s');
-    return $formattedDate;
-}
+    $productDetails = getRezdyProductDetails($apiKey, $productCode);
+    $startTimeLocal = getCurrentLocalDateTime();
+    $endTimeLocal = (new DateTime())->modify('+1 month')->format('Y-m-d H:i:s');
+    $availability = getRezdyAvailability($apiKey, $productCode, $startTimeLocal, $endTimeLocal);
 
-$apiKey = "81c3566e60ef42e6afa1c2719e7843fd";
-$productCode = $_GET['productCode'] ?? '';
-if (empty($productCode)) {
-    die("Error: Product code must be provided.");
-}
-
-$productDetails = getRezdyProductDetails($apiKey, $productCode);
-$startTimeLocal = getCurrentLocalDateTime();
-$endTimeLocal = (new DateTime())->modify('+1 month')->format('Y-m-d H:i:s');
-$availability = getRezdyAvailability($apiKey, $productCode, $startTimeLocal, $endTimeLocal);
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Handle form submission
-}
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        // Handle form submission
+    }
 ?>
 
 <!DOCTYPE html>
@@ -75,27 +75,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
+<style>
+    #payee{
+        border: 1px solid #0000001f;
+        padding: 8px 15px;
+        width: fit-content;
+    }
+</style>
 <body class="bg-gray-100">
-    <nav class="bg-white shadow-md py-4">
-        <div class="container mx-auto flex items-center justify-between">
-            <img src="images/logo_tdu.png" class="h-12" alt="Logo">
-            <ul class="flex space-x-4">
-                <li><a href="#" class="text-gray-700 hover:text-gray-900">Popular places</a></li>
-                <li><a href="#" class="text-gray-700 hover:text-gray-900">Travel Outside</a></li>
-                <li><a href="#" class="text-gray-700 hover:text-gray-900">Online Packages</a></li>
-            </ul>
-            <a href="#" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Register Now</a>
-        </div>
-    </nav>
+    <?php require "header.php";?>
     <div class="container mx-auto mt-5 p-4 bg-white rounded-lg shadow-lg">
         <form action="" method="post">
             <h1 id="product_name" class="text-4xl font-bold mb-4"><?php echo htmlspecialchars($productDetails['product']['name'] ?? ''); ?></h1>
             <p id="product_description" class="mb-4"><?php echo htmlspecialchars($productDetails['product']['shortDescription'] ?? ''); ?></p>
+            <input type="text" value="<?php echo htmlspecialchars($productDetails['product']['images'][0]['itemUrl']); ?>" id="imgurl" hidden>
             <?php if (isset($productDetails['product']['images'][0]['itemUrl'])): ?>
                 <img src="<?php echo htmlspecialchars($productDetails['product']['images'][0]['itemUrl']); ?>" alt="Product Image" class="w-full h-auto mb-4">
             <?php endif; ?>
             <input type="text" id="amount" value="<?php echo htmlspecialchars($productDetails['product']['priceOptions'][0]['price'] ?? ''); ?>" class="block w-full p-2 mb-4 border border-gray-300 rounded">
-
             <div class="form-group mb-4">
                 <p class="text-left mb-2 font-bold">Select passengers</p>
                 <div class="custom-dropdown relative">
@@ -148,6 +145,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="hidden" id="childrenInput" name="children" value="0">
                 <input type="hidden" id="infantsInput" name="infants" value="0">
             </div>
+            <p class="text-left mb-2 font-bold">Payment option</p>
+            <div id="payee" class="mb-3">
+                <select required name="paymentType" id="paymentType">
+                    <option value="" selected hidden>Select</option>
+                    <option value="CASH">CASH</option>
+                    <option value="CREDIT CARD">CREDIT CARD</option>
+                </select>
+            </div>
             <div class="mb-4">
                 <h2 class="text-2xl font-bold mb-4">Choose extras</h2>
                 <?php if (isset($productDetails['product']['extras']) && is_array($productDetails['product']['extras'])): ?>
@@ -173,159 +178,165 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
     <script>
-    function initMap() {
-        var location = { lat: <?php echo json_encode($productDetails['product']['latitude'] ?? 0); ?>, lng: <?php echo json_encode($productDetails['product']['longitude'] ?? 0); ?> };
-        var map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 10,
-            center: location
-        });
-        var marker = new google.maps.Marker({
-            position: location,
-            map: map
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", function() {
-        initMap();
-    });
-
-    $(document).ready(function() {
-        let adultsCount = 1;
-        let childrenCount = 0;
-        let infantsCount = 0;
-
-        function updatePassengerDropdown() {
-            let totalPassengers = adultsCount + childrenCount + infantsCount;
-            $('#passengerCount').text(totalPassengers);
-            $('#adultsInput').val(adultsCount);
-            $('#childrenInput').val(childrenCount);
-            $('#infantsInput').val(infantsCount);
-            updateAmount();
+        function initMap() {
+            var location = { lat: <?php echo json_encode($productDetails['product']['latitude'] ?? 0); ?>, lng: <?php echo json_encode($productDetails['product']['longitude'] ?? 0); ?> };
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 10,
+                center: location
+            });
+            var marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
         }
 
-        function updateAmount() {
-            const pricePerAdult = <?php echo json_encode($productDetails['product']['priceOptions'][0]['price'] ?? 0); ?>;
-            const totalAmount = (adultsCount + childrenCount + infantsCount) * pricePerAdult;
-            $('#amount').val(totalAmount);
-        }
-
-        $('#passengerDropdown').click(function() {
-            $('.custom-dropdown-menu').toggle();
+        document.addEventListener("DOMContentLoaded", function() {
+            initMap();
         });
 
-        $('#adults-plus').click(function() {
-            adultsCount++;
-            $('#adults-count').text(adultsCount);
-            updatePassengerDropdown();
-        });
+        $(document).ready(function() {
+            let adultsCount = 1;
+            let childrenCount = 0;
+            let infantsCount = 0;
 
-        $('#adults-minus').click(function() {
-            if (adultsCount > 1) {
-                adultsCount--;
+            function updatePassengerDropdown() {
+                let totalPassengers = adultsCount + childrenCount + infantsCount;
+                $('#passengerCount').text(totalPassengers);
+                $('#adultsInput').val(adultsCount);
+                $('#childrenInput').val(childrenCount);
+                $('#infantsInput').val(infantsCount);
+                updateAmount();
+            }
+
+            function updateAmount() {
+                const pricePerAdult = <?php echo json_encode($productDetails['product']['priceOptions'][0]['price'] ?? 0); ?>;
+                const totalAmount = (adultsCount + childrenCount + infantsCount) * pricePerAdult;
+                $('#amount').val(totalAmount);
+            }
+
+            $('#passengerDropdown').click(function() {
+                $('.custom-dropdown-menu').toggle();
+            });
+
+            $('#adults-plus').click(function() {
+                adultsCount++;
                 $('#adults-count').text(adultsCount);
                 updatePassengerDropdown();
-            }
-        });
+            });
 
-        $('#children-plus').click(function() {
-            childrenCount++;
-            $('#children-count').text(childrenCount);
-            updatePassengerDropdown();
-        });
+            $('#adults-minus').click(function() {
+                if (adultsCount > 1) {
+                    adultsCount--;
+                    $('#adults-count').text(adultsCount);
+                    updatePassengerDropdown();
+                }
+            });
 
-        $('#children-minus').click(function() {
-            if (childrenCount > 0) {
-                childrenCount--;
+            $('#children-plus').click(function() {
+                childrenCount++;
                 $('#children-count').text(childrenCount);
                 updatePassengerDropdown();
-            }
-        });
+            });
 
-        $('#infants-plus').click(function() {
-            infantsCount++;
-            $('#infants-count').text(infantsCount);
-            updatePassengerDropdown();
-        });
+            $('#children-minus').click(function() {
+                if (childrenCount > 0) {
+                    childrenCount--;
+                    $('#children-count').text(childrenCount);
+                    updatePassengerDropdown();
+                }
+            });
 
-        $('#infants-minus').click(function() {
-            if (infantsCount > 0) {
-                infantsCount--;
+            $('#infants-plus').click(function() {
+                infantsCount++;
                 $('#infants-count').text(infantsCount);
                 updatePassengerDropdown();
-            }
-        });
+            });
 
-        $('#passenger-ready').click(function() {
-            $('.custom-dropdown-menu').hide();
-        });
+            $('#infants-minus').click(function() {
+                if (infantsCount > 0) {
+                    infantsCount--;
+                    $('#infants-count').text(infantsCount);
+                    updatePassengerDropdown();
+                }
+            });
 
-        $(document).click(function(event) {
-            if (!$(event.target).closest('#passengerDropdown, .custom-dropdown-menu').length) {
+            $('#passenger-ready').click(function() {
                 $('.custom-dropdown-menu').hide();
-            }
-        });
+            });
 
-        $('#check-availability , #continue').click(function(event) {
-            event.preventDefault();
-            const adults = $('#adultsInput').val();
-            const children = $('#childrenInput').val();
-            const infants = $('#infantsInput').val();
-            const productCode = '<?php echo $productCode; ?>';
-            const productname = $('#product_name').text();
-            const productdescription = $('#product_description').text();
-            const Amount = $('#amount').val();
-            let selectedExtra = {
-                Adults: adults,
-                Children: children,
-                Infants: infants,
-                Amount: Amount,
-                ProductCode: productCode,
-                ProductName: productname,
-                productdescription: productdescription
-            };
+            $(document).click(function(event) {
+                if (!$(event.target).closest('#passengerDropdown, .custom-dropdown-menu').length) {
+                    $('.custom-dropdown-menu').hide();
+                }
+            });
 
-            let selectedExtrasArray = JSON.parse(sessionStorage.getItem('selectedExtras')) || [];
-            selectedExtrasArray.push(selectedExtra);
-            sessionStorage.setItem('selectedExtras', JSON.stringify(selectedExtrasArray));
+            $('#check-availability , #continue').click(function(event) {
+                event.preventDefault();
+                const adults = $('#adultsInput').val();
+                const children = $('#childrenInput').val();
+                const infants = $('#infantsInput').val();
+                const productCode = '<?php echo $productCode; ?>';
+                const productname = $('#product_name').text();
+                const productdescription = $('#product_description').text();
+                const Amount = $('#amount').val();
+                const TotalPassengers = Number(adults) + Number(children) + Number(infants);
+                const imgUrl = $('#imgurl').val();
+                const paymentType = $('#paymentType').val();
+                let selectedExtra = {
+                    Adults: adults,
+                    Children: children,
+                    Infants: infants,
+                    Amount: Amount,
+                    ProductCode: productCode,
+                    ProductName: productname,
+                    productdescription: productdescription,
+                    TotalPassengers : TotalPassengers,
+                    imgUrl:imgUrl,
+                    paymentType : paymentType
+                };
 
-            if ($(this).attr('id') === 'continue') {
-                window.location.href = `bookings.php?productCode=${productCode}`;
-                storeSessionAndRedirect(productCode);
+                let selectedExtrasArray = JSON.parse(sessionStorage.getItem('selectedExtras')) || [];
+                selectedExtrasArray.push(selectedExtra);
+                sessionStorage.setItem('selectedExtras', JSON.stringify(selectedExtrasArray));
+
+                if ($(this).attr('id') === 'continue') {
+                    window.location.href = `bookings.php?productCode=${productCode}`;
+                    storeSessionAndRedirect(productCode);
+                } else {
+                    storeSessionAndRedirect(productCode);
+                }
+            });
+
+            var availabilityResponse = <?php echo json_encode($availability); ?>;
+
+            if (availabilityResponse.requestStatus.success && availabilityResponse.sessions.length > 0) {
+                // Availability check success handling
             } else {
-                storeSessionAndRedirect(productCode);
+                var productCode = '<?php echo $productCode; ?>';
+                window.location.href = `results.php?productCode=${productCode}`;
             }
-        });
 
-        var availabilityResponse = <?php echo json_encode($availability); ?>;
-
-        if (availabilityResponse.requestStatus.success && availabilityResponse.sessions.length > 0) {
-            // Availability check success handling
-        } else {
-            var productCode = '<?php echo $productCode; ?>';
-            window.location.href = `results.php?productCode=${productCode}`;
-        }
-
-        function storeSessionAndRedirect(productCode) {
-            var selectedExtrasArray = sessionStorage.getItem('selectedExtras');
-            if (selectedExtrasArray) {
-                fetch('storesession.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ selectedExtras: selectedExtrasArray })
-                })
-                .then(response => response.text())
-                .then(data => {
-                    console.log(data);
+            function storeSessionAndRedirect(productCode) {
+                var selectedExtrasArray = sessionStorage.getItem('selectedExtras');
+                if (selectedExtrasArray) {
+                    fetch('storesession.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ selectedExtras: selectedExtrasArray })
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        console.log(data);
+                        window.location.href = url;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                } else {
                     window.location.href = url;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            } else {
-                window.location.href = url;
+                }
             }
-        }
-    });
+        });
     </script>
 </body>
 </html>

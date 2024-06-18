@@ -60,20 +60,10 @@ $availableSessions = searchAvailability($product['products'], $productType);
 </head>
 
 <body class="bg-gray-100">
-    <nav class="bg-white shadow-md py-4">
-        <div class="container mx-auto flex items-center justify-between">
-            <img src="images/logo_tdu.png" class="h-12" alt="Logo">
-            <ul class="flex space-x-4">
-                <li><a href="#" class="text-gray-700 hover:text-gray-900">Popular places</a></li>
-                <li><a href="#" class="text-gray-700 hover:text-gray-900">Travel Outside</a></li>
-                <li><a href="#" class="text-gray-700 hover:text-gray-900">Online Packages</a></li>
-            </ul>
-            <a href="#" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Register Now</a>
-        </div>
-    </nav>
+    <?php include "header.php";?>
 
     <div class="container mx-auto mt-5">
-        <h1 class="text-center text-4xl font-bold mb-5">SELECT A JOURNEY</h1>
+        <h1 style="margin-top: 7rem;" class="text-center text-4xl font-bold mb-5">SELECT A JOURNEY</h1>
         <?php if (!empty($availableSessions)): ?>
         <div class="flex flex-wrap -mx-4">
             <?php foreach($availableSessions as $session): ?>

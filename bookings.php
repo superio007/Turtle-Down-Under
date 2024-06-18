@@ -1,7 +1,90 @@
 <?php
 session_start();
+if (!isset($_SESSION['selectedExtras'])) {
+    $_SESSION['selectedExtras'] = [];
+}
 $sessionData = $_SESSION['selectedExtras'];
-// unset($_SESSION['selectedExtras']);
+
+require 'apiFunctions.php';
+
+date_default_timezone_set('UTC');
+
+$apiKey = "81c3566e60ef42e6afa1c2719e7843fd";
+$productCode = $_GET['productCode'] ?? '';
+if (empty($productCode)) {
+    die("Error: Product code must be provided.");
+}
+
+$productDetails = getRezdyProductDetails($apiKey, $productCode);
+$startTimeLocal = (new DateTime())->format('Y-m-d H:i:s');
+$endTimeLocal = (new DateTime())->modify('+1 month')->format('Y-m-d H:i:s');
+$availability = getRezdyAvailability($apiKey, $productCode, $startTimeLocal, $endTimeLocal);
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $firstName = htmlspecialchars($_POST['firstName']);
+    $lastName = htmlspecialchars($_POST['lastName']);
+    $phone = htmlspecialchars($_POST['phone']);
+    $amount = htmlspecialchars($_POST['amount']);
+    // $paymentType = htmlspecialchars($_POST['paymentType']);
+    // $adults = intval($_POST['adults']);
+    // $children = intval($_POST['children']);
+    // $infants = intval($_POST['infants']);
+    $selectedExtras = $_POST['extra'] ?? [];
+
+    if (isset($availability['sessions']) && count($availability['sessions']) > 0) {
+        $startTimeLocal = $availability['sessions'][0]['startTimeLocal'];
+
+        $bookingDataArray = [];
+        foreach ($sessionData as $session) {
+            for ($i = 0; $i < $session['TotalPassengers']; $i++) {
+                $bookingData = [
+                    "customer" => [
+                        "firstName" => $firstName,
+                        "lastName" => $lastName,
+                        "phone" => $phone
+                    ],
+                    "items" => [
+                        [
+                            "productCode" => $session['ProductCode'],
+                            "startTimeLocal" => $startTimeLocal,
+                            "quantities" => [
+                                [
+                                    "optionLabel" => "Adult",
+                                    "value" => $session['Adults']
+                                ],
+                                [
+                                    "optionLabel" => "Child",
+                                    "value" => $session['Children']
+                                ]
+                            ]
+                        ]
+                    ],
+                    "payments" => [
+                        [
+                            "amount" => $session['Amount'],
+                            "type" => $session['paymentType'],
+                            "recipient" => "AGENT",
+                            "label" => "Paid in cash to API specification demo company"
+                        ]
+                    ]
+                ];
+                $bookingDataArray[] = $bookingData;
+            }
+        }
+
+        foreach ($bookingDataArray as $booking) {
+            $bookingResponse = createRezdyBooking($apiKey, $booking);
+            var_dump($booking);
+            if (isset($bookingResponse['requestStatus']['success']) && $bookingResponse['requestStatus']['success'] == true) {
+                echo "Booking successful!";
+            } else {
+                echo "Booking failed!";
+            }
+        }
+    } else {
+        echo "No available sessions found for the selected product.";
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -102,149 +185,9 @@ $sessionData = $_SESSION['selectedExtras'];
     </style>
 </head>
 <body>
-    <?php
-        date_default_timezone_set('UTC');
-        // echo "<pre>";
-        // var_dump($_SESSION['selectedExtras']);
-        // echo "</pre>";
-
-        function getRezdyProductDetails($apiKey, $productCode) {
-            $url = "https://api.rezdy-staging.com/v1/products/$productCode?apiKey=" . urlencode($apiKey);
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $response = curl_exec($ch);
-            if ($response === false) {
-                die("Error: Curl request failed: " . curl_error($ch));
-            }
-            curl_close($ch);
-            $data = json_decode($response, true);
-            if ($data === null) {
-                die("Error: Failed to decode JSON response");
-            }
-            return $data;
-        }
-
-        function getRezdyAvailability($apiKey, $productCode, $startTimeLocal, $endTimeLocal) {
-            $url = "https://api.rezdy-staging.com/v1/availability?apiKey=" . urlencode($apiKey) . "&productCode=" . urlencode($productCode) . "&startTimeLocal=" . urlencode($startTimeLocal) . "&endTimeLocal=" . urlencode($endTimeLocal);
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $response = curl_exec($ch);
-            if ($response === false) {
-                die("Error: Curl request failed: " . curl_error($ch));
-            }
-            curl_close($ch);
-            $data = json_decode($response, true);
-            if ($data === null) {
-                die("Error: Failed to decode JSON response");
-            }
-            return $data;
-        }
-
-        function createRezdyBooking($apiKey, $bookingData) {
-            $url = "https://api.rezdy-staging.com/v1/bookings?apiKey=" . urlencode($apiKey);
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($bookingData));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-            $response = curl_exec($ch);
-            if ($response === false) {
-                die("Error: Curl request failed: " . curl_error($ch));
-            }
-            curl_close($ch);
-            $data = json_decode($response, true);
-            if ($data === null) {
-                die("Error: Failed to decode JSON response");
-            }
-            return $data;
-        }
-
-        $apiKey = "81c3566e60ef42e6afa1c2719e7843fd";
-        $productCode = $_GET['productCode'] ?? '';
-        if (empty($productCode)) {
-            die("Error: Product code must be provided.");
-        }
-
-        $productDetails = getRezdyProductDetails($apiKey, $productCode);
-        $startTimeLocal = (new DateTime())->format('Y-m-d H:i:s');
-        $endTimeLocal = (new DateTime())->modify('+1 month')->format('Y-m-d H:i:s');
-        $availability = getRezdyAvailability($apiKey, $productCode, $startTimeLocal, $endTimeLocal);
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $firstName = $_POST['firstName'];
-            $lastName = $_POST['lastName'];
-            $phone = $_POST['phone'];
-            $amount = $_POST['amount'];
-            $paymentType = $_POST['paymentType'];
-            $adults = $_POST['adults'];
-            $children = $_POST['children'];
-            $infants = $_POST['infants'];
-            $selectedExtras = $_POST['extra'] ?? [];
-
-            if (isset($availability['sessions']) && count($availability['sessions']) > 0) {
-                $startTimeLocal = $availability['sessions'][0]['startTimeLocal'];
-
-                $bookingDataArray = [];
-                foreach ($sessionData as $session) {
-                    for ($i = 0; $i < $session['TotalPassengers']; $i++) {
-                        $bookingData = [
-                            "customer" => [
-                                "firstName" => $firstName,
-                                "lastName" => $lastName,
-                                "phone" => $phone
-                            ],
-                            "items" => [
-                                [
-                                    "productCode" => $session['ProductCode'],
-                                    "startTimeLocal" => $startTimeLocal,
-                                    "quantities" => [
-                                        [
-                                            "optionLabel" => "Adult",
-                                            "value" => $adults
-                                        ]
-                                    ]
-                                ]
-                            ],
-                            "payments" => [
-                                [
-                                    "amount" => $session['Amount'],
-                                    "type" => $session['paymentType'],
-                                    "recipient" => "AGENT",
-                                    "label" => "Paid in cash to API specification demo company"
-                                ]
-                            ]
-                        ];
-                        $bookingDataArray[] = $bookingData;
-                    }
-                }
-
-                foreach ($bookingDataArray as $booking) {
-                    $bookingResponse = createRezdyBooking($apiKey, $booking);
-                    
-                    if (isset($bookingResponse['requestStatus']['success']) && $bookingResponse['requestStatus']['success'] == true) {
-                        echo "Booking successful!";
-                    } else {
-                        echo "Booking failed!";
-                    }
-                }
-            } else {
-                echo "No available sessions found for the selected product.";
-            }
-        }
-        var_dump($bookingDataArray);
-        var_dump($bookingResponse);
-    ?>
     <?php require "header.php" ?>
     <div class="container">
-        <form class="contact-form" action="bookings.php" method="POST">
+        <form class="contact-form" action="bookings.php?productCode=<?php echo htmlspecialchars($productCode); ?>" method="POST">
             <h2>Enter your contact details</h2>
             <div class="row">
                 <div class="form-group col-6 d-grid">

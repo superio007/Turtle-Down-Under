@@ -20,7 +20,6 @@ function getRezdyProducts($apiKey) {
 
 $apiKey = "81c3566e60ef42e6afa1c2719e7843fd";
 $productDetails = getRezdyProducts($apiKey);
-// $productDetails = json_decode($product);
 ?>
 
 <!DOCTYPE html>
@@ -44,7 +43,6 @@ $productDetails = getRezdyProducts($apiKey);
 
         .header {
             min-height: 100vh;
-            /* width: 100%; */
             background-image: linear-gradient(rgba(0,0,0,0.3),rgba(0,0,0,0.3)),url(images/banner_tdu.png);
             background-size: cover;
             background-position: center;
@@ -67,7 +65,7 @@ $productDetails = getRezdyProducts($apiKey);
         }
 
         .search-bar {
-            background:#B7D3F2 ;
+            background:#B7D3F2;
             width: 45%;
             margin: 0 auto;
             padding: 10px 30px;
@@ -120,15 +118,6 @@ $productDetails = getRezdyProducts($apiKey);
         }
     </style>
 
-    <!-- <nav>
-        <img src="images/logo_tdu.png" class="logo" alt="">
-        <ul class="nav-links">
-            <li><a href="index.php">Popular places</a></li>
-            <li><a href="#">Travel Outside</a></li>
-            <li><a href="#">Online Packages</a></li>
-        </ul>
-        <a href="#" class="register-btn">Register Now</a>
-    </nav> -->
     <?php require "header.php";?>
 
     <div class="header">
@@ -136,31 +125,21 @@ $productDetails = getRezdyProducts($apiKey);
             <h1>Find Your Next Stay</h1>
             <div class="search-bar">
                 <form action="results.php" method="GET">
-                    <!-- <div class="location-input">
-                        <label>Location</label>
-                        <input type="text" placeholder="Where are you going">
-                    </div>
-                    <div class="cal">
-                        <label>Check In</label>
-                        <input type="datetime-local">
-                    </div>
-                    <div class="cal">
-                        <label>Check Out</label>
-                        <input type="datetime-local">
-                    </div>  
-                    <div class="guest">
-                        <label>Guest</label>
-                        <input type="text" placeholder="Add Guest">
-                    </div> -->
                     <label>Product Type</label>
                     <div style="display: flex; align-items:center;">
                         <select name="productType" id="productType" class="form-control" required>
                             <option value="" hidden disabled selected>Select a Product Type</option>
-                            <?php foreach($productDetails['products'] as $product): ?>
-                                <option class="text-dark" value="<?php echo $product['productType']; ?>"><?php echo $product['name']; ?></option>
-                            <?php endforeach; ?>
+                            <?php if (!empty($productDetails['products'])): ?>
+                                <?php foreach ($productDetails['products'] as $product): ?>
+                                    <option class="text-dark" value="<?php echo htmlspecialchars($product['productType']); ?>">
+                                        <?php echo htmlspecialchars($product['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="" disabled>No products available</option>
+                            <?php endif; ?>
                         </select>
-                        <button type="submit"><img src="images/search.png"></button>
+                        <button type="submit"><img src="images/search.png" alt="Search"></button>
                     </div>
                 </form>
             </div>

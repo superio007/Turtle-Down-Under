@@ -291,8 +291,12 @@
                 if ($(this).attr('id') === 'continue') {
                     window.location.href = `bookings.php?productCode=${productCode}`;
                     storeSessionAndRedirect(productCode);
+                    updateCartCounter();
+                    updateCartItems();
                 } else {
                     storeSessionAndRedirect(productCode);
+                    updateCartCounter();
+                    updateCartItems();
                 }
             });
 

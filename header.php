@@ -84,7 +84,7 @@
                 cartContent += `
                 <div class="d-flex justify-content-between align-items-baseline">
                     <p class="m-0 p-2 btn text-light" style="background-color:#1be414;">$ AUD ${totalAmount}</p>
-                    <a class="btn btn-primary" href="payment.php">Continue</a>
+                    <a class="btn btn-primary" href="bookings.php?productCode=${cartItems[0].ProductCode}">Continue</a>
                 </div>
                 `;
             } else {

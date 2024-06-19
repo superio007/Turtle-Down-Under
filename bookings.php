@@ -4,36 +4,33 @@ if (!isset($_SESSION['selectedExtras'])) {
     $_SESSION['selectedExtras'] = [];
 }
 $sessionData = $_SESSION['selectedExtras'];
-
+ 
 require 'apiFunctions.php';
-
+ 
 date_default_timezone_set('UTC');
-
+ 
 $apiKey = "81c3566e60ef42e6afa1c2719e7843fd";
 $productCode = $_GET['productCode'] ?? '';
 if (empty($productCode)) {
     die("Error: Product code must be provided.");
 }
-
+ 
 $productDetails = getRezdyProductDetails($apiKey, $productCode);
 $startTimeLocal = (new DateTime())->format('Y-m-d H:i:s');
 $endTimeLocal = (new DateTime())->modify('+1 month')->format('Y-m-d H:i:s');
 $availability = getRezdyAvailability($apiKey, $productCode, $startTimeLocal, $endTimeLocal);
-
+ 
+$bookingMessage = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $firstName = htmlspecialchars($_POST['firstName']);
     $lastName = htmlspecialchars($_POST['lastName']);
     $phone = htmlspecialchars($_POST['phone']);
     $amount = htmlspecialchars($_POST['amount']);
-    // $paymentType = htmlspecialchars($_POST['paymentType']);
-    // $adults = intval($_POST['adults']);
-    // $children = intval($_POST['children']);
-    // $infants = intval($_POST['infants']);
     $selectedExtras = $_POST['extra'] ?? [];
-
+ 
     if (isset($availability['sessions']) && count($availability['sessions']) > 0) {
         $startTimeLocal = $availability['sessions'][0]['startTimeLocal'];
-
+ 
         $bookingDataArray = [];
         foreach ($sessionData as $session) {
             for ($i = 0; $i < $session['TotalPassengers']; $i++) {
@@ -77,22 +74,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         ]
                     ];
                 }
-
+ 
                 $bookingDataArray[] = $bookingData;
             }
         }
-
+ 
         foreach ($bookingDataArray as $booking) {
             $bookingResponse = createRezdyBooking($apiKey, $booking);
-            var_dump($booking);
             if (isset($bookingResponse['requestStatus']['success']) && $bookingResponse['requestStatus']['success'] == true) {
-                echo "Booking successful!";
+                $bookingMessage = "Booking successful!";
+                unset($_SESSION['selectedExtras']);
+                echo "<script>sessionStorage.removeItem('selectedExtras');</script>";
             } else {
-                echo "Booking failed!";
+                $bookingMessage = "Booking failed!";
             }
         }
     } else {
-        echo "No available sessions found for the selected product.";
+        $bookingMessage = "No available sessions found for the selected product.";
     }
 }
 ?>
@@ -104,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Contact Form</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -234,8 +233,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <p>You'll receive email reminders for this and future GetYourGuide products. You can opt out at any time. See our <a href="#">Privacy Policy</a>.</p>
         </form>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var bookingMessage = "<?php echo $bookingMessage; ?>";
+            if (bookingMessage === "Booking successful!") {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Your booking was successful!',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    </script>
 </body>
 </html>
-<script>
-    // sessionStorage.removeItem('selectedExtras');
-</script>

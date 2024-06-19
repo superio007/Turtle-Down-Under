@@ -77,36 +77,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         ]
                     ];
                 }
-                // // Create separate booking data for each child
-                // for ($i = 0; $i < $session['Children']; $i++) {
-                //     $bookingDataArray[] = [
-                //         "customer" => [
-                //             "firstName" => $firstName,
-                //             "lastName" => $lastName,
-                //             "phone" => $phone
-                //         ],
-                //         "items" => [
-                //             [
-                //                 "productCode" =>  $session['ProductCode'],
-                //                 "startTimeLocal" => $startTimeLocal,
-                //                 "quantities" => [
-                //                     [
-                //                         "optionLabel" => "Child",
-                //                         "value" => $session['Children']
-                //                     ]
-                //                 ]
-                //             ]
-                //         ],
-                //         "payments" => [
-                //             [
-                //                 "amount" => $session['Amount'],
-                //                 "type" => $session['paymentType'],
-                //                 "recipient" => "AGENT",
-                //                 "label" => "Paid in cash to API specification demo company"
-                //             ]
-                //         ]
-                //     ];
-                // }
 
                 $bookingDataArray[] = $bookingData;
             }

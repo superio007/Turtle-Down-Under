@@ -304,7 +304,7 @@
             // Availability check success handling
         } else {
             var productCode = '<?php echo $productCode; ?>';
-            window.location.href = `results.php?productCode=${productCode}`;
+            window.location.href = `results.php?productType=${productCode}`;
         }
 
         function storeSessionAndRedirect(productCode) {

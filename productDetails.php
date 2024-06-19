@@ -146,9 +146,16 @@
                 <h2 class="text-2xl font-bold mb-4">Choose extras</h2>
                 <?php if (isset($productDetails['product']['extras']) && is_array($productDetails['product']['extras'])): ?>
                     <?php foreach ($productDetails['product']['extras'] as $extra): ?>
-                        <div>
-                            <input type="checkbox" name="extra[]" id="extra-<?php echo htmlspecialchars($extra['name']); ?>" value="<?php echo htmlspecialchars($extra['name']); ?>" class="mr-2">
-                            <label for="extra-<?php echo htmlspecialchars($extra['name']); ?>"><?php echo htmlspecialchars($extra['name']); ?></label>
+                        <div class="d-flex gap-3">
+                            <div>
+                                <input type="checkbox" name="extra[]" id="extra-<?php echo htmlspecialchars($extra['name']); ?>" value="<?php echo htmlspecialchars($extra['name']); ?>" data-price="<?php echo htmlspecialchars($extra['price']); ?>" class="extra-checkbox mr-2">
+                                <label for="extra-<?php echo htmlspecialchars($extra['name']); ?>"><?php echo htmlspecialchars($extra['name']); ?></label>
+                            </div>
+                            <div class="form-group">
+                                <input style="width: 42px;" type="text" value="<?php echo "$". htmlspecialchars($extra['price']); ?>" disabled>
+                                <label for="extra-qty-<?php echo htmlspecialchars($extra['name']); ?>">Qty:</label>
+                                <input type="number" name="Extras_quantity[]" id="extra-qty-<?php echo htmlspecialchars($extra['name']); ?>" min="0" value="0" class="extra-quantity" style="padding-left:12px;width: 42px;">
+                            </div>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -167,169 +174,162 @@
 
     <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
     <script>
-        function initMap() {
-            var location = { lat: <?php echo json_encode($productDetails['product']['latitude'] ?? 0); ?>, lng: <?php echo json_encode($productDetails['product']['longitude'] ?? 0); ?> };
-            var map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 10,
-                center: location
-            });
-            var marker = new google.maps.Marker({
-                position: location,
-                map: map
-            });
+        $(document).ready(function() {
+        let adultsCount = 1;
+        let childrenCount = 0;
+        let infantsCount = 0;
+
+        function updatePassengerDropdown() {
+            let totalPassengers = adultsCount + childrenCount + infantsCount;
+            $('#passengerCount').text(totalPassengers); // Update passenger count display
+            $('#adultsInput').val(adultsCount);
+            $('#childrenInput').val(childrenCount);
+            $('#infantsInput').val(infantsCount);
+            updateAmount();
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
-            initMap();
-        });
+        function updateAmount() {
+            const pricePerAdult = <?php echo json_encode($productDetails['product']['priceOptions'][0]['price'] ?? 0); ?>;
+            const pricePerChild = <?php echo json_encode($productDetails['product']['priceOptions'][1]['price'] ?? 0); ?>;
+            let totalAmount = (adultsCount  * pricePerAdult + childrenCount * pricePerChild);
 
-        $(document).ready(function() {
-            let adultsCount = 1;
-            let childrenCount = 0;
-            let infantsCount = 0;
-
-            function updatePassengerDropdown() {
-                let totalPassengers = adultsCount + childrenCount + infantsCount;
-                $('#passengerCount').text(totalPassengers);
-                $('#adultsInput').val(adultsCount);
-                $('#childrenInput').val(childrenCount);
-                $('#infantsInput').val(infantsCount);
-                updateAmount();
-            }
-
-            function updateAmount() {
-                const pricePerAdult = <?php echo json_encode($productDetails['product']['priceOptions'][0]['price'] ?? 0); ?>;
-                const totalAmount = (adultsCount + childrenCount + infantsCount) * pricePerAdult;
-                $('#amount').val(totalAmount);
-            }
-
-            $('#passengerDropdown').click(function() {
-                $('.custom-dropdown-menu').toggle();
+            // Include extras in the amount calculation
+            $('.extra-checkbox:checked').each(function() {
+                const extraPrice = parseFloat($(this).data('price'));
+                const quantity = parseInt($(this).closest('.d-flex').find('.extra-quantity').val()) || 0;
+                totalAmount += extraPrice * quantity;
             });
 
-            $('#adults-plus').click(function() {
-                adultsCount++;
+            $('#amount').val(totalAmount.toFixed(2));
+        }
+
+        $('.extra-checkbox, .extra-quantity').change(function() {
+            updateAmount();
+        });
+
+        $('#passengerDropdown').click(function() {
+            $('.custom-dropdown-menu').toggle();
+        });
+
+        $('#adults-plus').click(function() {
+            adultsCount++;
+            $('#adults-count').text(adultsCount);
+            updatePassengerDropdown();
+        });
+
+        $('#adults-minus').click(function() {
+            if (adultsCount > 1) {
+                adultsCount--;
                 $('#adults-count').text(adultsCount);
                 updatePassengerDropdown();
-            });
-
-            $('#adults-minus').click(function() {
-                if (adultsCount > 1) {
-                    adultsCount--;
-                    $('#adults-count').text(adultsCount);
-                    updatePassengerDropdown();
-                }
-            });
-
-            $('#children-plus').click(function() {
-                childrenCount++;
-                $('#children-count').text(childrenCount);
-                updatePassengerDropdown();
-            });
-
-            $('#children-minus').click(function() {
-                if (childrenCount > 0) {
-                    childrenCount--;
-                    $('#children-count').text(childrenCount);
-                    updatePassengerDropdown();
-                }
-            });
-
-            $('#infants-plus').click(function() {
-                infantsCount++;
-                $('#infants-count').text(infantsCount);
-                updatePassengerDropdown();
-            });
-
-            $('#infants-minus').click(function() {
-                if (infantsCount > 0) {
-                    infantsCount--;
-                    $('#infants-count').text(infantsCount);
-                    updatePassengerDropdown();
-                }
-            });
-
-            $('#passenger-ready').click(function() {
-                $('.custom-dropdown-menu').hide();
-            });
-
-            $(document).click(function(event) {
-                if (!$(event.target).closest('#passengerDropdown, .custom-dropdown-menu').length) {
-                    $('.custom-dropdown-menu').hide();
-                }
-            });
-
-            $('#check-availability , #continue').click(function(event) {
-                event.preventDefault();
-                const adults = $('#adultsInput').val();
-                const children = $('#childrenInput').val();
-                // const infants = $('#infantsInput').val();
-                const productCode = '<?php echo $productCode; ?>';
-                const productname = $('#product_name').text();
-                const productdescription = $('#product_description').text();
-                const Amount = $('#amount').val();
-                const TotalPassengers = Number(adults) + Number(children);
-                const imgUrl = $('#imgurl').val();
-                const paymentType = $('#paymentType').val();
-                let selectedExtra = {
-                    Adults: adults,
-                    Children: children,
-                    // Infants: infants,
-                    Amount: Amount,
-                    ProductCode: productCode,
-                    ProductName: productname,
-                    productdescription: productdescription,
-                    TotalPassengers : TotalPassengers,
-                    imgUrl:imgUrl,
-                    paymentType : paymentType
-                };
-
-                let selectedExtrasArray = JSON.parse(sessionStorage.getItem('selectedExtras')) || [];
-                selectedExtrasArray.push(selectedExtra);
-                sessionStorage.setItem('selectedExtras', JSON.stringify(selectedExtrasArray));
-
-                if ($(this).attr('id') === 'continue') {
-                    window.location.href = `bookings.php?productCode=${productCode}`;
-                    storeSessionAndRedirect(productCode);
-                    updateCartCounter();
-                    updateCartItems();
-                } else {
-                    storeSessionAndRedirect(productCode);
-                    updateCartCounter();
-                    updateCartItems();
-                }
-            });
-
-            var availabilityResponse = <?php echo json_encode($availability); ?>;
-
-            if (availabilityResponse.requestStatus.success && availabilityResponse.sessions.length > 0) {
-                // Availability check success handling
-            } else {
-                var productCode = '<?php echo $productCode; ?>';
-                window.location.href = `results.php?productCode=${productCode}`;
-            }
-
-            function storeSessionAndRedirect(productCode) {
-                var selectedExtrasArray = sessionStorage.getItem('selectedExtras');
-                if (selectedExtrasArray) {
-                    fetch('storesession.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ selectedExtras: selectedExtrasArray })
-                    })
-                    .then(response => response.text())
-                    .then(data => {
-                        console.log(data);
-                        window.location.href = url;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-                } else {
-                    window.location.href = url;
-                }
             }
         });
+
+        $('#children-plus').click(function() {
+            childrenCount++;
+            $('#children-count').text(childrenCount);
+            updatePassengerDropdown();
+        });
+
+        $('#children-minus').click(function() {
+            if (childrenCount > 0) {
+                childrenCount--;
+                $('#children-count').text(childrenCount);
+                updatePassengerDropdown();
+            }
+        });
+
+        $('#passenger-ready').click(function() {
+            $('.custom-dropdown-menu').hide();
+        });
+
+        $(document).click(function(event) {
+            if (!$(event.target).closest('#passengerDropdown, .custom-dropdown-menu').length) {
+                $('.custom-dropdown-menu').hide();
+            }
+        });
+
+        $('.extra-checkbox, .extra-quantity').change(function() {
+            updateAmount();
+        });
+
+        $('#check-availability, #continue').click(function(event) {
+            event.preventDefault();
+            const adults = $('#adultsInput').val();
+            const children = $('#childrenInput').val();
+            const productCode = '<?php echo $productCode; ?>';
+            const productname = $('#product_name').text();
+            const productdescription = $('#product_description').text();
+            const Amount = $('#amount').val();
+            const TotalPassengers = Number(adults) + Number(children);
+            const imgUrl = $('#imgurl').val();
+            const paymentType = $('#paymentType').val();
+            let extras = [];
+
+            $('.extra-checkbox:checked').each(function() {
+                const extraName = $(this).val();
+                const quantity = $(this).closest('.d-flex').find('.extra-quantity').val();
+                extras.push({ name: extraName, quantity: quantity });
+            });
+
+            let selectedExtra = {
+                Adults: adults,
+                Children: children,
+                Amount: Amount,
+                ProductCode: productCode,
+                ProductName: productname,
+                productdescription: productdescription,
+                TotalPassengers: TotalPassengers,
+                imgUrl: imgUrl,
+                paymentType: paymentType,
+                Extras: extras
+            };
+
+            let selectedExtrasArray = JSON.parse(sessionStorage.getItem('selectedExtras')) || [];
+            selectedExtrasArray.push(selectedExtra);
+            sessionStorage.setItem('selectedExtras', JSON.stringify(selectedExtrasArray));
+
+            if ($(this).attr('id') === 'continue') {
+                window.location.href = `bookings.php?productCode=${productCode}`;
+            } else {
+                storeSessionAndRedirect(productCode);
+                updateCartCounter();
+                updateCartItems();
+            }
+        });
+
+        var availabilityResponse = <?php echo json_encode($availability); ?>;
+
+        if (availabilityResponse.requestStatus.success && availabilityResponse.sessions.length > 0) {
+            // Availability check success handling
+        } else {
+            var productCode = '<?php echo $productCode; ?>';
+            window.location.href = `results.php?productCode=${productCode}`;
+        }
+
+        function storeSessionAndRedirect(productCode) {
+            var selectedExtrasArray = sessionStorage.getItem('selectedExtras');
+            if (selectedExtrasArray) {
+                fetch('storesession.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ selectedExtras: selectedExtrasArray })
+                })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);
+                    // window.location.href = `bookings.php?productCode=${productCode}`;
+                    alert("Trip has been added into your cart.");
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            } else {
+                // window.location.href = `bookings.php?productCode=${productCode}`;
+            }
+        }
+        });
+
     </script>
 </body>
 </html>

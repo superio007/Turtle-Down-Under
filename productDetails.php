@@ -146,9 +146,12 @@
                 <h2 class="text-2xl font-bold mb-4">Choose extras</h2>
                 <?php if (isset($productDetails['product']['extras']) && is_array($productDetails['product']['extras'])): ?>
                     <?php foreach ($productDetails['product']['extras'] as $extra): ?>
-                        <div>
-                            <input type="checkbox" name="extra[]" id="extra-<?php echo htmlspecialchars($extra['name']); ?>" value="<?php echo htmlspecialchars($extra['name']); ?>" class="mr-2">
-                            <label for="extra-<?php echo htmlspecialchars($extra['name']); ?>"><?php echo htmlspecialchars($extra['name']); ?></label>
+                        <div class="d-flex gap-3">
+                            <div>
+                                <input type="checkbox" name="extra[]" id="extra-<?php echo htmlspecialchars($extra['name']); ?>" value="<?php echo htmlspecialchars($extra['name']); ?>" class="mr-2">
+                                <label for="extra-<?php echo htmlspecialchars($extra['name']); ?>"><?php echo htmlspecialchars($extra['name']); ?></label>
+                            </div>
+                            <label for="extra-<?php echo htmlspecialchars($extra['description']); ?>">Qty :</label><input style="width: 42px;" type="number" name="Extras_quantity" id="extra-<?php echo htmlspecialchars($extra['description']); ?>" min="0" value="0">
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>

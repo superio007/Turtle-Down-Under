@@ -1,0 +1,229 @@
+{
+    "requestStatus": {
+        "success": true,
+        "version": "v1"
+    },
+    "product": {
+        "productType": "ACTIVITY",
+        "name": "Zoo Entry",
+        "shortDescription": "Tickets are valid for 90 days from purchase date.",
+        "description": "Come and visit New Zealand's first zoo to get up close and personal to native treasures and endangered exotic animals.&nbsp;<br>Child entry applies for 3-14 year olds, and we have free entry for under 3 years old. All children under the age of 14 must be accompanied by an adult.&nbsp;<br>Tickets are valid for 90 days from purchase date.&nbsp;",
+        "productCode": "PVY1MN",
+        "internalCode": "ZOO_PVY1MN",
+        "supplierId": 1075,
+        "supplierAlias": "rezdydemotest",
+        "supplierName": "Rezdy API Certification Use",
+        "timezone": "Pacific/Pago_Pago",
+        "advertisedPrice": 2.5,
+        "priceOptions": [
+            {
+                "price": 2.5,
+                "label": "Adult",
+                "id": 31006,
+                "seatsUsed": 1,
+                "productCode": "PVY1MN"
+            },
+            {
+                "price": 1.5,
+                "label": "Child",
+                "id": 30999,
+                "seatsUsed": 1,
+                "productCode": "PVY1MN"
+            },
+            {
+                "price": 4.0,
+                "label": "1 Adult + 2 Children",
+                "id": 31008,
+                "seatsUsed": 3,
+                "productCode": "PVY1MN"
+            },
+            {
+                "price": 4.5,
+                "label": "1 Adult + 3 Children",
+                "id": 31001,
+                "seatsUsed": 4,
+                "productCode": "PVY1MN"
+            },
+            {
+                "price": 5.0,
+                "label": "2 Adults + 2 Children",
+                "id": 31007,
+                "seatsUsed": 4,
+                "productCode": "PVY1MN"
+            },
+            {
+                "price": 6.0,
+                "label": "2 Adults + 3 Children",
+                "id": 31000,
+                "seatsUsed": 5,
+                "productCode": "PVY1MN"
+            },
+            {
+                "price": 2.0,
+                "label": "Concession - Student",
+                "id": 31005,
+                "seatsUsed": 1,
+                "productCode": "PVY1MN"
+            },
+            {
+                "price": 2.0,
+                "label": "Concession - Senior",
+                "id": 31003,
+                "seatsUsed": 1,
+                "productCode": "PVY1MN"
+            },
+            {
+                "price": 2.0,
+                "label": "Concession - YHA",
+                "id": 31004,
+                "seatsUsed": 1,
+                "productCode": "PVY1MN"
+            },
+            {
+                "price": 2.0,
+                "label": "Concession - Community Card",
+                "id": 31002,
+                "seatsUsed": 1,
+                "productCode": "PVY1MN"
+            }
+        ],
+        "currency": "AUD",
+        "unitLabel": "Participant",
+        "unitLabelPlural": "Participants",
+        "quantityRequired": true,
+        "quantityRequiredMin": 1,
+        "images": [
+            {
+                "id": 11191,
+                "itemUrl": "https://img.rezdy-test.com/PRODUCT_IMAGE/1075/bbfcc5099b464400b0aa1eee93c3ebabimage.png",
+                "thumbnailUrl": "https://img.rezdy-test.com/PRODUCT_IMAGE/1075/bbfcc5099b464400b0aa1eee93c3ebabimage_tb.png",
+                "mediumSizeUrl": "https://img.rezdy-test.com/PRODUCT_IMAGE/1075/bbfcc5099b464400b0aa1eee93c3ebabimage_med.png",
+                "largeSizeUrl": "https://img.rezdy-test.com/PRODUCT_IMAGE/1075/bbfcc5099b464400b0aa1eee93c3ebabimage_lg.png"
+            }
+        ],
+        "videos": [],
+        "bookingMode": "NO_DATE",
+        "charter": false,
+        "terms": "",
+        "extras": [
+            {
+                "name": "Photo with the koala",
+                "description": "Photo with Koalas for all participants",
+                "price": 2.0,
+                "extraPriceType": "FIXED",
+                "image": {
+                    "id": 12902,
+                    "itemUrl": "https://img.rezdy-staging.com/EXTRA_IMAGE/koala2.jpg",
+                    "thumbnailUrl": "https://img.rezdy-staging.com/EXTRA_IMAGE/koala2_tb.jpg",
+                    "mediumSizeUrl": "https://img.rezdy-staging.com/EXTRA_IMAGE/koala2_med.jpg",
+                    "largeSizeUrl": "https://img.rezdy-staging.com/EXTRA_IMAGE/koala2_lg.jpg"
+                }
+            },
+            {
+                "name": "Accident Reduction Cost $50 option (Reduces cost to $2000)",
+                "description": "In the event of a vehicle accident the driver agrees to pay the full amount of $3000.00 to repair the vehicle. This option reduces \"clause 35\" of the indemnity form to a payment of $2000. This reduction needs to be paid prior to starting your drive experience.\t",
+                "price": 50.0,
+                "extraPriceType": "ANY",
+                "image": {
+                    "id": 23335,
+                    "itemUrl": "https://img.rezdy-staging.com/EXTRA_IMAGE/5c9182639cfc42008819044d8eeab5ea1.png",
+                    "thumbnailUrl": "https://img.rezdy-staging.com/EXTRA_IMAGE/5c9182639cfc42008819044d8eeab5ea1_tb.png",
+                    "mediumSizeUrl": "https://img.rezdy-staging.com/EXTRA_IMAGE/5c9182639cfc42008819044d8eeab5ea1_med.png",
+                    "largeSizeUrl": "https://img.rezdy-staging.com/EXTRA_IMAGE/5c9182639cfc42008819044d8eeab5ea1_lg.png"
+                }
+            },
+            {
+                "name": "I ❤ San Francisco T-Shirt",
+                "description": "Show your love...",
+                "price": 30.0,
+                "extraPriceType": "ANY",
+                "image": {
+                    "id": 3975,
+                    "itemUrl": "https://imgtest.rezdy.com/EXTRA_IMAGE/2017_05_22_14h19_04.png",
+                    "thumbnailUrl": "https://imgtest.rezdy.com/EXTRA_IMAGE/2017_05_22_14h19_04_tb.png",
+                    "mediumSizeUrl": "https://imgtest.rezdy.com/EXTRA_IMAGE/2017_05_22_14h19_04_med.png",
+                    "largeSizeUrl": "https://imgtest.rezdy.com/EXTRA_IMAGE/2017_05_22_14h19_04_lg.png"
+                }
+            },
+            {
+                "name": "t-shirt",
+                "description": "Mens' T-shirts sizes M, L, XL, 2XL.\r\nLadies' T-shirts sizes S, M, L, XL.\r\nPlease specify your size.\r\n(Sizes subject to availability)",
+                "price": 10.0,
+                "extraPriceType": "QUANTITY"
+            }
+        ],
+        "bookingFields": [
+            {
+                "label": "Email",
+                "requiredPerParticipant": false,
+                "requiredPerBooking": true,
+                "visiblePerParticipant": false,
+                "visiblePerBooking": true,
+                "fieldType": "String"
+            },
+            {
+                "label": "Special Requirements",
+                "requiredPerParticipant": false,
+                "requiredPerBooking": true,
+                "visiblePerParticipant": false,
+                "visiblePerBooking": true,
+                "fieldType": "String"
+            },
+            {
+                "label": "Mobile",
+                "requiredPerParticipant": false,
+                "requiredPerBooking": true,
+                "visiblePerParticipant": false,
+                "visiblePerBooking": true,
+                "fieldType": "Phone"
+            },
+            {
+                "label": "First Name",
+                "requiredPerParticipant": true,
+                "requiredPerBooking": true,
+                "visiblePerParticipant": true,
+                "visiblePerBooking": true,
+                "fieldType": "String"
+            },
+            {
+                "label": "Last Name",
+                "requiredPerParticipant": true,
+                "requiredPerBooking": true,
+                "visiblePerParticipant": true,
+                "visiblePerBooking": true,
+                "fieldType": "String"
+            }
+        ],
+        "latitude": -33.843012,
+        "longitude": 151.2441915,
+        "confirmMode": "AUTOCONFIRM",
+        "confirmModeMinParticipants": 0,
+        "agentPaymentType": "FULL_AGENT",
+        "maxCommissionPercent": 20.0,
+        "commissionIncludesExtras": true,
+        "dateCreated": "2018-10-17T00:50:06Z",
+        "minimumNoticeMinutes": 0,
+        "durationMinutes": 1440,
+        "dateUpdated": "2023-12-05T02:56:08Z",
+        "locationAddress": {
+            "addressLine": " Bradleys Head Road",
+            "postCode": "2088",
+            "city": "Mosman",
+            "state": "NSW",
+            "countryCode": "au",
+            "latitude": -33.843012,
+            "longitude": 151.2441915
+        },
+        "additionalInformation": "",
+        "languages": [
+            "en_au"
+        ],
+        "tags": [
+            "CATEGORY:zoo"
+        ],
+        "waitListingEnabled": false,
+        "qrCodeType": "INTERNAL",
+        "isApiBookingSupported": true,
+        "isMultiProductBookingSupported": true
+    }
+}

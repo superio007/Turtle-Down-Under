@@ -37,6 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $bookingDataArray = [];
         foreach ($sessionData as $session) {
             for ($i = 0; $i < $session['TotalPassengers']; $i++) {
+                foreach($session['Extras'] as $Extras){
+                    $extrasArray[] = [
+                        "name" => $Extras['name'],
+                        "quantity"=>(int) $Extras['quantity']
+                    ];
+                }
                 for ($i = 0; $i <  $session['Adults']; $i++) {
                     $bookingData = [
                         "customer" => [
@@ -52,40 +58,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     [
                                         "optionLabel" => "Adult",
                                         "value" => $session['Adults']
-                                    ]
-                                ]
-                            ]
-                        ],
-                        "payments" => [
-                            [
-                                "amount" => $session['Amount'],
-                                "type" => $session['paymentType'],
-                                "recipient" => "AGENT",
-                                "label" => "Paid in cash to API specification demo company"
-                            ]
-                        ]
-                    ];
-                }
-                // Create separate booking data for each child
-                for ($i = 0; $i < $session['Children']; $i++) {
-                    $bookingDataArray[] = [
-                        "customer" => [
-                            "firstName" => $firstName,
-                            "lastName" => $lastName,
-                            "phone" => $phone
-                        ],
-                        "items" => [
-                            [
-                                "productCode" =>  $session['ProductCode'],
-                                "startTimeLocal" => $startTimeLocal,
-                                "quantities" => [
+                                    ],
                                     [
                                         "optionLabel" => "Child",
                                         "value" => $session['Children']
-                                    ]
+                                    ],
                                 ]
                             ]
                         ],
+                        "extras" => $extrasArray,
                         "payments" => [
                             [
                                 "amount" => $session['Amount'],
@@ -96,6 +77,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         ]
                     ];
                 }
+                // // Create separate booking data for each child
+                // for ($i = 0; $i < $session['Children']; $i++) {
+                //     $bookingDataArray[] = [
+                //         "customer" => [
+                //             "firstName" => $firstName,
+                //             "lastName" => $lastName,
+                //             "phone" => $phone
+                //         ],
+                //         "items" => [
+                //             [
+                //                 "productCode" =>  $session['ProductCode'],
+                //                 "startTimeLocal" => $startTimeLocal,
+                //                 "quantities" => [
+                //                     [
+                //                         "optionLabel" => "Child",
+                //                         "value" => $session['Children']
+                //                     ]
+                //                 ]
+                //             ]
+                //         ],
+                //         "payments" => [
+                //             [
+                //                 "amount" => $session['Amount'],
+                //                 "type" => $session['paymentType'],
+                //                 "recipient" => "AGENT",
+                //                 "label" => "Paid in cash to API specification demo company"
+                //             ]
+                //         ]
+                //     ];
+                // }
 
                 $bookingDataArray[] = $bookingData;
             }

@@ -32,20 +32,10 @@ if (empty($productType)) {
 
 $product = getRezdyProducts($apiKey);
 
-function searchAvailability($sessions, $productType) {
-    $availableSessions = array();
-
-    foreach ($sessions as $session) {
-        if (isset($session['productType']) && $session['productType'] === $productType) {
-            $availableSessions[] = $session;
-        }
-    }
-
-    return $availableSessions;
-}
-
 // Filter products by productType
-$availableSessions = searchAvailability($product['products'], $productType);
+$availableSessions = array_filter($product['products'], function($session) use ($productType) {
+    return isset($session['productType']) && $session['productType'] === $productType;
+});
 
 ?>
 
@@ -56,48 +46,41 @@ $availableSessions = searchAvailability($product['products'], $productType);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rezdy API - Product Results</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-light">
     <?php include "header.php";?>
 
-    <div class="container mx-auto mt-5">
-        <h1 style="margin-top: 7rem;" class="text-center text-4xl font-bold mb-5">SELECT A JOURNEY</h1>
+    <div class="container mt-5">
+        <h1 class="text-center text-primary mb-5" style="margin-top: 7rem;">SELECT A JOURNEY</h1>
         <?php if (!empty($availableSessions)): ?>
-        <div class="flex flex-wrap -mx-4">
+        <div class="row">
             <?php foreach($availableSessions as $session): ?>
-            <div class="w-full md:w-1/3 px-4 mb-4">
-                <div class="bg-white rounded-lg overflow-hidden shadow-lg flex flex-col h-full">
-                    <div class="relative">
-                        <?php if (!empty($session['images'][0]['thumbnailUrl'])): ?>
-                        <img src="<?php echo htmlspecialchars($session['images'][0]['thumbnailUrl']); ?>"
-                            class="w-full h-48 object-cover" alt="<?php echo htmlspecialchars($session['name']); ?>">
-                        <?php endif; ?>
-                        <div class="absolute bottom-0 w-full bg-black bg-opacity-50 text-white p-3">
-                            <h5 class="text-center"><?php echo htmlspecialchars($session['name']); ?></h5>
-                        </div>
-                    </div>
-                    <div class="p-4 flex flex-col flex-grow">
-                        <p class="mb-2"><?php echo htmlspecialchars($session['shortDescription']); ?></p>
-                        <p class="mb-2"><strong>Product Code:</strong>
-                            <?php echo htmlspecialchars($session['productCode']); ?></p>
-                        <p class="bg-green-500 text-white p-2 rounded-full mt-2 mb-2 inline-block"><strong>Advertised Price:</strong>
-                            $<?php echo htmlspecialchars($session['advertisedPrice']); ?>
-                            <?php echo htmlspecialchars($session['currency']); ?></p>
-                        <p class="mb-2"><strong>Price Options:</strong></p>
-                        <ul class="mb-4">
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <?php if (!empty($session['images'][0]['thumbnailUrl'])): ?>
+                    <img src="<?php echo htmlspecialchars($session['images'][0]['thumbnailUrl']); ?>"
+                        class="card-img-top" alt="<?php echo htmlspecialchars($session['name']); ?>">
+                    <?php endif; ?>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title"><?php echo htmlspecialchars($session['name']); ?></h5>
+                        <p class="card-text"><?php echo htmlspecialchars($session['shortDescription']); ?></p>
+                        <p class="card-text"><strong>Product Code:</strong> <?php echo htmlspecialchars($session['productCode']); ?></p>
+                        <p class="card-text bg-success text-white p-2 rounded">
+                            <strong>Advertised Price:</strong>
+                            $<?php echo isset($session['advertisedPrice']) ? htmlspecialchars($session['advertisedPrice']) : 'N/A'; ?>
+                            <?php echo isset($session['currency']) ? htmlspecialchars($session['currency']) : ''; ?>
+                        </p>
+                        <p class="card-text"><strong>Price Options:</strong></p>
+                        <ul class="list-unstyled">
                             <?php foreach ($session['priceOptions'] as $priceOption): ?>
-                            <li><?php echo htmlspecialchars($priceOption['label']); ?>:
-                                $<?php echo htmlspecialchars($priceOption['price']); ?></li>
+                            <li><?php echo htmlspecialchars($priceOption['label']); ?>: $<?php echo htmlspecialchars($priceOption['price']); ?></li>
                             <?php break; ?>
                             <?php endforeach; ?>
                         </ul>
-                        <div class="mt-auto flex justify-center py-3">
-                            <button type="button"
-                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded view-details-btn"
-                                data-product-code="<?php echo htmlspecialchars($session['productCode']); ?>">View
-                                Details</button>
+                        <div class="mt-auto">
+                            <button type="button" class="btn btn-primary view-details-btn" data-product-code="<?php echo htmlspecialchars($session['productCode']); ?>">View Details</button>
                         </div>
                     </div>
                 </div>
@@ -106,10 +89,12 @@ $availableSessions = searchAvailability($product['products'], $productType);
         </div>
 
         <?php else: ?>
-        <h2 class="text-center text-2xl">Packages are not available</h2>
+        <h2 class="text-center text-danger">Packages are not available</h2>
         <?php endif; ?>
     </div>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         document.querySelectorAll(".view-details-btn").forEach(button => {

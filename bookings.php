@@ -4,81 +4,81 @@ if (!isset($_SESSION['selectedExtras'])) {
     $_SESSION['selectedExtras'] = [];
 }
 $sessionData = $_SESSION['selectedExtras'];
- 
+
 require 'apiFunctions.php';
- 
+
 date_default_timezone_set('UTC');
- 
+
 $apiKey = "81c3566e60ef42e6afa1c2719e7843fd";
 $productCode = $_GET['productCode'] ?? '';
 if (empty($productCode)) {
     die("Error: Product code must be provided.");
 }
- 
+
 $productDetails = getRezdyProductDetails($apiKey, $productCode);
 $startTimeLocal = (new DateTime())->format('Y-m-d H:i:s');
 $endTimeLocal = (new DateTime())->modify('+1 month')->format('Y-m-d H:i:s');
 $availability = getRezdyAvailability($apiKey, $productCode, $startTimeLocal, $endTimeLocal);
- 
+
 $bookingMessage = '';
+$bookingResponse = null;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $firstName = htmlspecialchars($_POST['firstName']);
     $lastName = htmlspecialchars($_POST['lastName']);
+    $email = htmlspecialchars($_POST['email']);
+    $country = htmlspecialchars($_POST['country']);
     $phone = htmlspecialchars($_POST['phone']);
-    $amount = htmlspecialchars($_POST['amount']);
     $selectedExtras = $_POST['extra'] ?? [];
- 
+
     if (isset($availability['sessions']) && count($availability['sessions']) > 0) {
         $startTimeLocal = $availability['sessions'][0]['startTimeLocal'];
- 
+
         $bookingDataArray = [];
         foreach ($sessionData as $session) {
-            for ($i = 0; $i < $session['TotalPassengers']; $i++) {
-                foreach($session['Extras'] as $Extras){
-                    $extrasArray[] = [
-                        "name" => $Extras['name'],
-                        "quantity"=>(int) $Extras['quantity']
-                    ];
-                }
-                for ($i = 0; $i <  $session['Adults']; $i++) {
-                    $bookingData = [
-                        "customer" => [
-                            "firstName" => $firstName,
-                            "lastName" => $lastName,
-                            "phone" => $phone
-                        ],
-                        "items" => [
+            $extrasArray = [];
+            foreach ($session['Extras'] as $Extras) {
+                $extrasArray[] = [
+                    "name" => $Extras['name'],
+                    "quantity" => (int) $Extras['quantity']
+                ];
+            }
+            $bookingData = [
+                "customer" => [
+                    "firstName" => $firstName,
+                    "lastName" => $lastName,
+                    "email" => $email,
+                    "phone" => $phone,
+                    "country" => $country
+                ],
+                "items" => [
+                    [
+                        "productCode" => $session['ProductCode'],
+                        "startTimeLocal" => $startTimeLocal,
+                        "quantities" => [
                             [
-                                "productCode" => $session['ProductCode'],
-                                "startTimeLocal" => $startTimeLocal,
-                                "quantities" => [
-                                    [
-                                        "optionLabel" => "Adult",
-                                        "value" => $session['Adults']
-                                    ],
-                                    [
-                                        "optionLabel" => "Child",
-                                        "value" => $session['Children']
-                                    ],
-                                ]
-                            ]
-                        ],
-                        "extras" => $extrasArray,
-                        "payments" => [
+                                "optionLabel" => "Adult",
+                                "value" => $session['Adults']
+                            ],
                             [
-                                "amount" => $session['Amount'],
-                                "type" => $session['paymentType'],
-                                "recipient" => "AGENT",
-                                "label" => "Paid in cash to API specification demo company"
+                                "optionLabel" => "Child",
+                                "value" => $session['Children']
                             ]
                         ]
-                    ];
-                }
- 
-                $bookingDataArray[] = $bookingData;
-            }
+                    ]
+                ],
+                "extras" => $extrasArray,
+                "payments" => [
+                    [
+                        "amount" => $session['Amount'],
+                        "type" => $session['paymentType'],
+                        "recipient" => "AGENT",
+                        "label" => "Paid in cash to API specification demo company"
+                    ]
+                ]
+            ];
+            $bookingDataArray[] = $bookingData;
         }
- 
+
         foreach ($bookingDataArray as $booking) {
             $bookingResponse = createRezdyBooking($apiKey, $booking);
             if (isset($bookingResponse['requestStatus']['success']) && $bookingResponse['requestStatus']['success'] == true) {
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 unset($_SESSION['selectedExtras']);
                 echo "<script>sessionStorage.removeItem('selectedExtras');</script>";
             } else {
-                $bookingMessage = "Booking failed!";
+                $bookingMessage = "Booking failed: " . $bookingResponse['requestStatus']['error']['errorMessage'];
             }
         }
     } else {
@@ -94,6 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -109,12 +110,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background-color: #f4f4f4;
             margin: 0;
         }
-        nav #right-side {
-            display: flex;
-        }
-        nav .register-btn {
-            width: 220px;
-        }
         .container {
             background-color: white;
             border: 1px solid #ddd;
@@ -127,27 +122,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .header {
             margin-bottom: 20px;
         }
-        .steps {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 10px;
-        }
-        .steps span {
-            font-weight: bold;
-        }
         .contact-form h2 {
             text-align: center;
             margin-bottom: 20px;
-        }
-        .secure-checkout {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            color: green;
-            font-weight: bold;
-        }
-        .secure-checkout input {
-            margin-right: 10px;
         }
         .form-group {
             margin-bottom: 20px;
@@ -162,10 +139,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
-        }
-        .form-group input[type="checkbox"] {
-            width: auto;
-            margin-right: 10px;
         }
         button {
             width: 100%;
@@ -194,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 <body>
-    <?php require "header.php" ?>
+    <?php require "header.php"; ?>
     <div class="container">
         <form class="contact-form" action="bookings.php?productCode=<?php echo htmlspecialchars($productCode); ?>" method="POST">
             <h2>Enter your contact details</h2>
@@ -229,6 +202,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label for="email-updates">Send me discounts and other offers by email</label>
             </div>
             <p>We’ll only contact you with essential updates or changes to your booking.</p>
+            <p><?php echo htmlspecialchars(var_export($bookingResponse, true)); ?></p>
+
             <button type="submit">Go to payment</button>
             <p>You'll receive email reminders for this and future GetYourGuide products. You can opt out at any time. See our <a href="#">Privacy Policy</a>.</p>
         </form>
@@ -236,11 +211,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var bookingMessage = "<?php echo $bookingMessage; ?>";
+            var boores = <?php var_dump($bookingResponse); ?>
             if (bookingMessage === "Booking successful!") {
                 Swal.fire({
                     title: 'Success!',
                     text: 'Your booking was successful!',
                     icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            } else if (bookingMessage.startsWith("Booking failed:")) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: bookingMessage,
+                    icon: 'error',
                     confirmButtonText: 'OK'
                 });
             }

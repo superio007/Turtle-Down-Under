@@ -20,6 +20,16 @@ function getRezdyProducts($apiKey) {
 
 $apiKey = "81c3566e60ef42e6afa1c2719e7843fd";
 $productDetails = getRezdyProducts($apiKey);
+
+// Collect unique product types
+$productTypes = [];
+if (!empty($productDetails['products'])) {
+    foreach ($productDetails['products'] as $product) {
+        if (!in_array($product['productType'], $productTypes)) {
+            $productTypes[] = $product['productType'];
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -129,14 +139,14 @@ $productDetails = getRezdyProducts($apiKey);
                     <div style="display: flex; align-items:center;">
                         <select name="productType" id="productType" class="form-control" required>
                             <option value="" hidden disabled selected>Select a Product Type</option>
-                            <?php if (!empty($productDetails['products'])): ?>
-                                <?php foreach ($productDetails['products'] as $product): ?>
-                                    <option class="text-dark" value="<?php echo htmlspecialchars($product['productType']); ?>">
-                                        <?php echo htmlspecialchars($product['name']); ?>
+                            <?php if (!empty($productTypes)): ?>
+                                <?php foreach ($productTypes as $productType): ?>
+                                    <option class="text-dark" value="<?php echo htmlspecialchars($productType); ?>">
+                                        <?php echo htmlspecialchars($productType); ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <option value="" disabled>No products available</option>
+                                <option value="" disabled>No product types available</option>
                             <?php endif; ?>
                         </select>
                         <button type="submit"><img src="images/search.png" alt="Search"></button>

@@ -53,6 +53,7 @@ function createRezdyBooking($apiKey, $bookingData) {
     }
     curl_close($ch);
     $data = json_decode($response, true);
+    
     if ($data === null) {
         die("Error: Failed to decode JSON response");
     }
